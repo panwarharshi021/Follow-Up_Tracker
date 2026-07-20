@@ -1,0 +1,302 @@
+{
+  "name": "Follow-up Tracker",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "daysInterval": 3,
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "c5865894-f102-4752-90be-085734857246",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1zUFkxe5dMR9ymc9MtEAPPZbK4qbv5yZB1JgTdesV4R0",
+          "mode": "list",
+          "cachedResultName": " spreadsheet 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1zUFkxe5dMR9ymc9MtEAPPZbK4qbv5yZB1JgTdesV4R0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1zUFkxe5dMR9ymc9MtEAPPZbK4qbv5yZB1JgTdesV4R0/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        208,
+        0
+      ],
+      "id": "fa74d89e-22bd-41e7-9841-6b3f92af59cd",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "PqYhW6NlSHmlUu1E",
+          "name": "OAuth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "7693d3a7-27a5-449e-9830-9ae3c6f8c25f",
+              "leftValue": "={{ $json[\"Status\"] }}",
+              "rightValue": "sent",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "8ddcb2b8-12e6-46a5-81a1-342e0ce56b69",
+              "leftValue": "={{ $json[\"Follow Up Date\"].toString().trim() }}",
+              "rightValue": "={{ $now.format('dd/MM/yy') }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        416,
+        0
+      ],
+      "id": "e10f5f4f-f751-4b97-ab9a-e67765a0052c",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "sendTo": "panwarharshi021@gmail.com",
+        "subject": "=Follow up with {{ $json[\"Lead Name\"] }} today!",
+        "emailType": "text",
+        "message": "=Hi,  You have a follow up due today with:  Name: {{ $json[\"Lead Name\"] }} Company: {{ $json[\"Company\"] }} Email: {{ $json[\"Email\"] }}  Don't forget to reach out!",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        624,
+        -96
+      ],
+      "id": "5c8c91c9-1f99-453d-94b1-a3a0f7f32e9f",
+      "name": "Send a message",
+      "webhookId": "2c8bcb4a-0a94-4d89-b2c8-68e286d2ef00",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "LSicRCUmOPDNqb9E",
+          "name": "Gmail"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1zUFkxe5dMR9ymc9MtEAPPZbK4qbv5yZB1JgTdesV4R0",
+          "mode": "list",
+          "cachedResultName": " spreadsheet 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1zUFkxe5dMR9ymc9MtEAPPZbK4qbv5yZB1JgTdesV4R0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1zUFkxe5dMR9ymc9MtEAPPZbK4qbv5yZB1JgTdesV4R0/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Status": "followed up",
+            "Email": "={{ $('Get row(s) in sheet').item.json[\"Email\"] }}"
+          },
+          "matchingColumns": [
+            "Email"
+          ],
+          "schema": [
+            {
+              "id": "Lead Name",
+              "displayName": "Lead Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Company",
+              "displayName": "Company",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Date Emailed",
+              "displayName": "Date Emailed",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Follow Up Date",
+              "displayName": "Follow Up Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        832,
+        -96
+      ],
+      "id": "e15654ca-8e7d-4b69-869f-7fa65f90afb5",
+      "name": "Update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "PqYhW6NlSHmlUu1E",
+          "name": "OAuth account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "ab8431ca-c9b2-4600-9bc0-ec063439e5a8",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3a53d6b180fc76d9fd7ecdbc4700787af0ab5b2c13734efa64571281e00dea7f"
+  },
+  "nodeGroups": [],
+  "id": "EIWWvTFu75LRom2y",
+  "tags": []
+}
